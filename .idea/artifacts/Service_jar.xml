@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Service:jar">
+    <output-path>$PROJECT_DIR$/../jar</output-path>
+    <root id="archive" name="Service.jar">
+      <element id="module-output" name="Service" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../jar/AutoSocket_jar/mysql-connector-java-5.1.39-bin.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
