@@ -8,4 +8,4 @@
     1.需要相关的数据库用来存储服务配置。<br>
     2.数据库需要有tb_service_state表来实现对框架的控制。<br>
     3.单个服务的数据库表需要id,state,changed字段来实现对服务的控制。<br>
-<h3>三、关于框架的详细介绍请看<a url="http://blog.csdn.net/deginch/article/details/52876254">博客</a>。</h3><br>
+<h3>三、关于框架的详细介绍请看<a href="http://blog.csdn.net/deginch/article/details/52876254">博客</a>。</h3><br>
