@@ -1,4 +1,3 @@
-<h1>博客地址:http://blog.csdn.net/deginch/article/details/52876254</h1><br>
 <h3>一、服务框架应用场景：</h3><br>
     本框架为基于linux的java框架，主要分为四个部分:<br>
     1.基于反射的业务框架，能够从数据库读取配置生成对应的服务并启动，而且能实时从数据库加载最新的配置。<br>
@@ -9,4 +8,4 @@
     1.需要相关的数据库用来存储服务配置。<br>
     2.数据库需要有tb_service_state表来实现对框架的控制。<br>
     3.单个服务的数据库表需要id,state,changed字段来实现对服务的控制。<br>
-<h3>三、关于框架的详细介绍请看博客。</h3><br>
+<h3>三、关于框架的详细介绍请看<a url="http://blog.csdn.net/deginch/article/details/52876254">博客</a>。</h3><br>
