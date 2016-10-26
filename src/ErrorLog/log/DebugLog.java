@@ -1,4 +1,6 @@
-package ErrorLog;
+package ErrorLog.log;
+
+import ErrorLog.*;
 
 /**
  * Created by root on 16-10-26.

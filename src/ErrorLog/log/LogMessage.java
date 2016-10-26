@@ -1,4 +1,4 @@
-package ErrorLog;
+package ErrorLog.log;
 
 import Database.DatabaseObject;
 

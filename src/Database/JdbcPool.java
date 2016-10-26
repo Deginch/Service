@@ -54,7 +54,6 @@ public class JdbcPool implements DataSource {
             Class.forName(driver);
             for (int i = 0; i < initSize; i++) {
                 Connection conn = DriverManager.getConnection(url, username, password);
-                ErrorLog.writeLog("get conn for " + conn);
                 //将获取到的数据库连接加入到listConnections集合中，listConnections集合此时就是一个存放了数据库连接的连接池
                 listConnections.add(conn);
             }
@@ -124,15 +123,14 @@ public class JdbcPool implements DataSource {
     }
 
     public static synchronized void close(){
+        ErrorLog.writeLog("closing all connections");
         while (usedList.size()>0){
-            ErrorLog.writeLog("used connections's count is "+usedList.size());
             try {
                 usedList.remove().close();
             } catch (SQLException e) {
                 ErrorLog.writeLog(e);
             }
         }
-        ErrorLog.writeLog("close all connections");
         for (Connection conn:listConnections) {
             try {
                 conn.close();
@@ -140,6 +138,7 @@ public class JdbcPool implements DataSource {
                 e.printStackTrace();
             }
         }
+        System.out.println("all connections closed");
     }
 
     /* 获取数据库连接
@@ -153,10 +152,10 @@ public class JdbcPool implements DataSource {
             conn = listConnections.removeFirst();
         } else {
             conn = DriverManager.getConnection(url, username, password);
-            ErrorLog.writeLog("conn is out");
+//            ErrorLog.writeLog("conn is out");
         }
         usedList.add(conn);
-        ErrorLog.writeLog("get new conn, listConnections's count is " + listConnections.size()+",used conn is "+usedList.size());
+//        ErrorLog.writeLog("get new conn, listConnections's count is " + listConnections.size()+",used conn is "+usedList.size());
         //返回Connection对象的代理对象
         return (Connection) Proxy.newProxyInstance(JdbcPool.class.getClassLoader(), conn.getClass().getInterfaces(), new InvocationHandler() {
             @Override
@@ -166,13 +165,13 @@ public class JdbcPool implements DataSource {
                     return method.invoke(conn, args);
                 } else {
                     usedList.remove(conn);
-                    ErrorLog.writeLog("close old conn, listConnections's count is " + listConnections.size()+",used conn is "+usedList.size());
+//                    ErrorLog.writeLog("close old conn, listConnections's count is " + listConnections.size()+",used conn is "+usedList.size());
                     if (listConnections.size() >= initSize) {
                         return method.invoke(conn, args);
                     } else {
                         //如果调用的是Connection对象的close方法，就把conn还给数据库连接池
                         listConnections.add(conn);
-                        ErrorLog.writeLog(conn + " returned to listConnections pool！！");
+//                        ErrorLog.writeLog(conn + " returned to listConnections pool！！");
                         return null;
                     }
                 }

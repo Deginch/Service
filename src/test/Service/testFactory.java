@@ -1,6 +1,6 @@
 package test.Service;
 
-import ErrorLog.ErrorLog;
+import ErrorLog.*;
 import Service.ServiceFactory;
 
 /**
@@ -39,7 +39,7 @@ public class testFactory extends ServiceFactory {
     }
 
     @Override
-    public ErrorLog.LogType[] getLogTypes() {
+    public LogType[] getLogTypes() {
         return null;
     }
 

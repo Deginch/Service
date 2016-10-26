@@ -1,5 +1,6 @@
-package ErrorLog;
+package ErrorLog.log;
 
+import ErrorLog.*;
 import Tool.JarTool;
 
 import java.io.File;

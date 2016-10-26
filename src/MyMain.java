@@ -1,15 +1,10 @@
 import AutoSocket.*;
-import Database.*;
 import ErrorLog.ErrorLog;
+import ErrorLog.log.DatabaseLog;
 import Tool.FileUtil;
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 import java.io.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Date;
-import ErrorLog.*;
 
 /**
  * Created by degin on 2016/7/3.

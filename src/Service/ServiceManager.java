@@ -176,8 +176,8 @@ public class ServiceManager implements Commander, DatabaseObject {
                     ServiceManager.this.stop();
                     ThreadPool.shutdownNow();
                     ThreadPool.waitTerminate(10);
+                    ErrorLog.writeLog("exit successfully,start clear");
                     JdbcPool.close();
-                    ErrorLog.writeLog("exit successfully");
                     ErrorLog.close();
                 }
             }

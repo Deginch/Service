@@ -3,7 +3,7 @@ package Service;
 
 import Database.DatabaseObject;
 import Database.DatabaseObjectFactory;
-import ErrorLog.ErrorLog;
+import ErrorLog.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,7 +31,7 @@ public abstract class ServiceFactory implements DatabaseObjectFactory {
      */
     public abstract String getServiceName();
 
-    public abstract ErrorLog.LogType[] getLogTypes();
+    public abstract LogType[] getLogTypes();
 
     /**
      * 返回服务类

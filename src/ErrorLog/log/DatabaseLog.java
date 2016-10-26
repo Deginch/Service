@@ -1,13 +1,14 @@
-package ErrorLog;
+package ErrorLog.log;
 
 import Database.DatabaseHandler;
+import ErrorLog.*;
 
 import java.sql.SQLException;
 
 /**
  * Created by root on 16-10-26.
  */
-public class DatabaseLog implements Log{
+public class DatabaseLog implements Log {
     private DatabaseHandler handler;
 
     public DatabaseLog(String serviceName){

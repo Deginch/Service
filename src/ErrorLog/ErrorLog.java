@@ -6,24 +6,7 @@ package ErrorLog;
 public class ErrorLog {
     private static Log[] logs;
 
-    public enum LogType {
-        DEBUG_LOG, FILE_LOG, DATABASE_LOG;
-
-        public Log getLog(String serviceName) {
-            switch (this) {
-                case DEBUG_LOG:
-                    return new DebugLog();
-                case FILE_LOG:
-                    return new FileLog(serviceName);
-                case DATABASE_LOG:
-                    return new DatabaseLog(serviceName);
-                default:
-                    return new FileLog(serviceName);
-            }
-        }
-    }
-
-    public static void init(String serviceName, LogType ... logTypes) {
+    public static void init(String serviceName, LogType... logTypes) {
         if (logs != null) {
             return;
         }
@@ -34,7 +17,7 @@ public class ErrorLog {
     }
 
     public static void setDebug() {
-        init("",LogType.DEBUG_LOG);
+        init("", LogType.DEBUG_LOG);
     }
 
     public static void writeLog(String massage, Throwable e) {
