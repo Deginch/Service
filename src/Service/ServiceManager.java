@@ -2,8 +2,7 @@ package Service;
 
 import Database.*;
 import ServiceHandler.*;
-import Tool.ErrorLog;
-import Tool.JarTool;
+import ErrorLog.ErrorLog;
 import Tool.ThreadPool;
 
 import java.lang.reflect.Field;
@@ -34,7 +33,7 @@ public class ServiceManager implements Commander, DatabaseObject {
         this.serviceFactory = serviceFactory;
         service_name = serviceFactory.getServiceName();
         serviceTableName = serviceFactory.getDefaultService().getTableName();
-        ErrorLog.setDir(JarTool.getJarDir() + "/log/" + serviceFactory.getServiceName() + '/');
+        ErrorLog.init(service_name,serviceFactory.getLogTypes());
         ThreadPool.init();
         killCallBack();
     }

@@ -1,6 +1,6 @@
 package Database;
 
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 
 import java.io.IOException;
 import java.io.InputStream;

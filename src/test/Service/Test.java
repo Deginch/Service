@@ -1,7 +1,7 @@
 package test.Service;
 
 import Service.Service;
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 
 /**
  * Created by root on 16-8-22.

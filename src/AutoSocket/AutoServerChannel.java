@@ -1,7 +1,6 @@
 package AutoSocket;
 
-import Tool.ErrorLog;
-import Tool.ThreadPool;
+import ErrorLog.ErrorLog;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

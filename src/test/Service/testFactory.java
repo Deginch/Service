@@ -1,5 +1,6 @@
 package test.Service;
 
+import ErrorLog.ErrorLog;
 import Service.ServiceFactory;
 
 /**
@@ -35,6 +36,11 @@ public class testFactory extends ServiceFactory {
     @Override
     public String getServiceName() {
         return "test";
+    }
+
+    @Override
+    public ErrorLog.LogType[] getLogTypes() {
+        return null;
     }
 
     /**

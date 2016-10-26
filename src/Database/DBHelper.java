@@ -1,12 +1,8 @@
 package Database;
 
-import Service.*;
-import Tool.ErrorLog;
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import ErrorLog.ErrorLog;
 
-import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.*;
 
 /**
  * Created by degin on 2016/6/30.

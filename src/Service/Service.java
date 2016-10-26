@@ -3,7 +3,7 @@ package Service;
 import Database.DatabaseObject;
 import ServiceHandler.ServiceChanged;
 import ServiceHandler.ServiceState;
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 
 import java.lang.reflect.Field;
 

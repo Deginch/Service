@@ -1,6 +1,6 @@
 package Database;
 
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
@@ -323,6 +323,10 @@ public class DatabaseHandler {
         });
     }
 
+    public int execute(String sql, Object[] params) throws SQLException {
+        return dbHelper.execute(sql,params);
+    }
+
     /**
      * 向指定类填充指定数据
      *
@@ -346,7 +350,6 @@ public class DatabaseHandler {
         return true;
     }
 
-
     /**
      * 退出并释放资源
      */
@@ -357,9 +360,6 @@ public class DatabaseHandler {
         }
     }
 
-    public DBHelper getDbHelper() {
-        return this.dbHelper;
-    }
 
 
 }

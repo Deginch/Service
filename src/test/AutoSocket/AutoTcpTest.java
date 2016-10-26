@@ -2,7 +2,7 @@ package test.AutoSocket;
 
 import AutoSocket.AutoTcp;
 import AutoSocket.TcpReceiver;
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 import Tool.ThreadPool;
 import org.junit.Test;
 import org.junit.Before; 
@@ -37,7 +37,7 @@ public void testStart() throws Exception {
     tcp=AutoTcp.GetSocketByProtocolType(AutoTcp.TcpClientProtocol,"127.0.0.1",20003,new TcpReceiver(){
         @Override
         public void GetData(byte[] data) {
-            ErrorLog.writeLog(data.length);
+            ErrorLog.writeLog(data.length+"");
         }
     }).setRestartTime(1);
     tcp.start();

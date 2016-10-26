@@ -1,11 +1,10 @@
 package AutoSocket;
 
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 import Tool.ThreadPool;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.*;

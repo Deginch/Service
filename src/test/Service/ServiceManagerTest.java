@@ -2,12 +2,11 @@ package test.Service;
 
 import Database.JdbcPool;
 import Service.ServiceManager;
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 import Tool.ThreadPool;
 import org.junit.Test;
 import org.junit.Before; 
 import org.junit.After;
-import org.junit.rules.ErrorCollector;
 
 /** 
 * ServiceManager Tester. 

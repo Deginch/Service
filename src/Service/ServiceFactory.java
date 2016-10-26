@@ -3,11 +3,9 @@ package Service;
 
 import Database.DatabaseObject;
 import Database.DatabaseObjectFactory;
-import Tool.ErrorLog;
-import com.sun.xml.internal.ws.api.addressing.WSEndpointReference;
+import ErrorLog.ErrorLog;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 /**
@@ -33,6 +31,8 @@ public abstract class ServiceFactory implements DatabaseObjectFactory {
      */
     public abstract String getServiceName();
 
+    public abstract ErrorLog.LogType[] getLogTypes();
+
     /**
      * 返回服务类
      * @return
@@ -47,6 +47,5 @@ public abstract class ServiceFactory implements DatabaseObjectFactory {
         }
         return getDefaultService();
     }
-
 
 }

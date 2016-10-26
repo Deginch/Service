@@ -5,7 +5,7 @@ import java.util.Hashtable;
 
 import Database.DatabaseHandler;
 import Service.Service;
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 
 /**
  * Created by degin on 2016/7/2.

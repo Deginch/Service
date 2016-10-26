@@ -1,14 +1,12 @@
 package AutoSocket;
 
-import Tool.ErrorLog;
-import Tool.ThreadPool;
+import ErrorLog.ErrorLog;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.util.Date;
 import java.util.Iterator;
 
 /**

@@ -1,12 +1,8 @@
 package Tool;
 
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 
-import javax.xml.crypto.Data;
 import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by root on 16-8-4.

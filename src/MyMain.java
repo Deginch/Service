@@ -1,21 +1,15 @@
 import AutoSocket.*;
 import Database.*;
-import Service.Service;
-import Service.ServiceFactory;
-import Service.ServiceManager;
-import Tool.ErrorLog;
+import ErrorLog.ErrorLog;
 import Tool.FileUtil;
-import Tool.JarTool;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
-import java.io.File;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.Date;
-import java.util.logging.FileHandler;
-
+import ErrorLog.*;
 
 /**
  * Created by degin on 2016/7/3.
@@ -25,28 +19,11 @@ public class MyMain {
 
     public static void main(String[] agrs) {
         ErrorLog.setDebug();
-        JdbcPool pool = new JdbcPool();
-        PreparedStatement statement = null;
-        int changedCount = 0;
+        File test=new File("/home/tes11223t");
         try {
-            Connection conn = pool.getConnection();
-            String sql = "insert into table1 (object_id)VALUES (?);";
-            try {
-                statement = conn.prepareStatement(sql);
-                    for (int i = 10000; i < 110000; i++) {
-                        statement.clearParameters();
-                        statement.setObject(1, i/10000);
-                        changedCount = statement.executeUpdate();
-                    }
-
-            } catch (MySQLIntegrityConstraintViolationException e) {
-                ErrorLog.writeLog(e);
-            } catch (SQLException e) {
-                ErrorLog.writeLog(e);
-            } finally {
-            }
-        } catch (SQLException e) {
-            ErrorLog.writeLog(e);
+            BufferedReader reader=new BufferedReader(new FileReader(test));
+        } catch (FileNotFoundException e) {
+            System.out.println(DatabaseLog.getMessage(e));
         }
     }
 
@@ -78,7 +55,6 @@ public class MyMain {
             buffer.append(test);
         }
         test = buffer.toString();
-        ErrorLog.setDir("/home/sheldon/mycode/jar/");
         Date date = new Date();
         while (true) {
             ErrorLog.writeLog(test);
