@@ -28,7 +28,7 @@ public class ErrorLog {
             return;
         }
         logs = new Log[logTypes.length];
-        for (int i = 0; i > logTypes.length; i++) {
+        for (int i = 0; i < logTypes.length; i++) {
             logs[i] = logTypes[i].getLog(serviceName);
         }
     }
