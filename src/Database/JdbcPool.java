@@ -161,11 +161,11 @@ public class JdbcPool implements DataSource {
             @Override
             public synchronized Object invoke(Object proxy, Method method, Object[] args)
                     throws Throwable {
-                if (!method.getName().equals("close")) {
+                if (!method.getName().equals("stop")) {
                     return method.invoke(conn, args);
                 } else {
                     usedList.remove(conn);
-//                    ErrorLog.writeLog("close old conn, listConnections's count is " + listConnections.size()+",used conn is "+usedList.size());
+//                    ErrorLog.writeLog("stop old conn, listConnections's count is " + listConnections.size()+",used conn is "+usedList.size());
                     if (listConnections.size() >= initSize) {
                         return method.invoke(conn, args);
                     } else {
