@@ -1,11 +1,13 @@
 package AutoStream;
 
 import ErrorLog.ErrorLog;
+import jdk.nashorn.internal.ir.IfNode;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -13,9 +15,9 @@ import java.util.Iterator;
  */
 public class NioTcpServer extends NioTcp {
     ServerSocketChannel serverChannel;
-    private int maxCount=-1;
+    HashMap<Object, SelectionKey> hashMap = new HashMap<>();
 
-    public NioTcpServer(String ip, int port, StreamReceiver receiver) {
+    public NioTcpServer(String ip, int port, StreamReceiverWithObject receiver) {
         super(ip, port, receiver);
     }
 
@@ -26,6 +28,11 @@ public class NioTcpServer extends NioTcp {
         serverChannel.configureBlocking(false);
         serverChannel.socket().bind(new InetSocketAddress(port));
         serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+    }
+
+    @Override
+    public void awake(int num) {
+
     }
 
     @Override
@@ -43,6 +50,7 @@ public class NioTcpServer extends NioTcp {
 
     }
 
+
     @Override
     public void send(byte[] data) {
         Iterator iterator = selector.keys().iterator();
@@ -59,9 +67,30 @@ public class NioTcpServer extends NioTcp {
         }
     }
 
+    @Override
+    protected void handleData(byte[] data, SelectionKey key) {
+        Object index=receiver.read(data,key);
+        if(index!=null&&!key.equals(hashMap.get(index))){
+            hashMap.put(index,key);
+        }
+    }
+
+    @Override
+    public void send(byte[] data, Object object) {
+        if(object!=null&&hashMap.containsKey(object)){
+            try {
+                ((SocketChannel)hashMap.get(object).channel()).write(ByteBuffer.wrap(data));
+            } catch (IOException e) {
+                ErrorLog.writeLog("ServerChannel ip=" + ip + " port=" + port, e);
+                closeKey(hashMap.get(object));
+            }
+        }
+    }
+
 
     /**
      * 检查已连接数据最大值是否已经超过指定值
+     *
      * @param channel
      */
     private void checkCount(Channel channel) {
@@ -75,5 +104,19 @@ public class NioTcpServer extends NioTcp {
                 }
             }
         }
+    }
+
+
+    @Override
+    protected void closeKey(SelectionKey key) {
+        super.closeKey(key);
+        Iterator<SelectionKey> iterator = hashMap.values().iterator();
+        while (iterator.hasNext()) {
+            SelectionKey temp = iterator.next();
+            if (temp.equals(key)) {
+                iterator.remove();
+            }
+        }
+
     }
 }

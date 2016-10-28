@@ -10,19 +10,20 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 
 /**
  * Created by root on 16-10-27.
  */
-public class NioTcpClient extends NioTcp {
+class NioTcpClient extends NioTcp {
     SocketChannel channel;
+    protected volatile boolean isConnecting=false;
 
-    public NioTcpClient(String ip, int port, StreamReceiver receiver) {
+    public NioTcpClient(String ip, int port, StreamReceiverWithObject receiver) {
         super(ip, port, receiver);
     }
 
     public void connect() {
+        isConnecting=true;
         try {
             ErrorLog.writeLog("start connect ip:" + ip + ",port:" + port);
             channel = SocketChannel.open();
@@ -35,16 +36,22 @@ public class NioTcpClient extends NioTcp {
     }
 
     @Override
+    public void open(Selector selector) throws IOException {
+        super.open(selector);
+        connect();
+    }
+
+    @Override
     public void awake(int num) {
-        super.awake(num);
         if (num == 0) {
             if (restartTime > 0 && restartCount++ > restartTime * 6) {//无数据时间达到restartTime
                 ThreadPool.exec(new Runnable() {
                     @Override
                     public void run() {
-                        Iterator iterator = selector.keys().iterator();
-                        while (iterator.hasNext()) {
-                            SelectionKey key = (SelectionKey) iterator.next();
+                        restartCount=0;
+                        ErrorLog.writeLog("reboot,ip:"+ip+",port:"+port);
+                        if(channel.isRegistered()){
+                            SelectionKey key=channel.keyFor(selector);
                             closeKey(key);
                         }
                         connect();
@@ -53,12 +60,6 @@ public class NioTcpClient extends NioTcp {
                 restartCount = 0;
             }
         }
-    }
-
-    @Override
-    public void open(Selector selector) throws IOException {
-        super.open(selector);
-        connect();
     }
 
     @Override
@@ -79,19 +80,21 @@ public class NioTcpClient extends NioTcp {
         if (channel.isConnectionPending()) {
             try {
                 channel.finishConnect();
+                isConnecting=false;
+                channel.configureBlocking(false);
+                channel.register(selector, SelectionKey.OP_READ);
+                System.out.println("channel connected " + (selector.keys().size() - 1) + ",ip=" + ip + ",port=" + port);
             } catch (ConnectException e) {
+                ErrorLog.writeLog("channel connecting error ,ip=" + ip + ",port=" + port, e);
                 try {
-                    ErrorLog.writeLog("channel connecting error ,ip=" + ip + ",port=" + port, e);
                     Thread.sleep(reconnectTime);
+                    key.cancel();
                     connect();
                     return;
                 } catch (InterruptedException e1) {
                     ErrorLog.writeLog(e);
                 }
             }
-            channel.configureBlocking(false);
-            channel.register(selector, SelectionKey.OP_READ);
-            System.out.println("channel connected " + (selector.keys().size() - 1) + ",ip=" + ip + ",port=" + port);
         } else {
             ErrorLog.writeLog("error");
         }
@@ -99,9 +102,10 @@ public class NioTcpClient extends NioTcp {
 
     @Override
     public void send(byte[] data) {
-        restartCount = 0;
-        if (channel.isConnected()) {
+        if (!isConnecting) {
+            ErrorLog.writeLog("sending data");
             try {
+                System.out.println(channel.isConnected());
                 channel.write(ByteBuffer.wrap(data));
             } catch (IOException e) {
                 ErrorLog.writeLog(e);
@@ -118,13 +122,13 @@ public class NioTcpClient extends NioTcp {
                 }
                 connect();
             }
-        } else {
-            try {
-                Thread.sleep(reconnectTime);
-            } catch (InterruptedException e1) {
-                ErrorLog.writeLog(e1);
-            }
-            connect();
         }
     }
+
+    @Override
+    public void send(byte[] data, Object object) {
+        send(data);
+    }
+
+
 }

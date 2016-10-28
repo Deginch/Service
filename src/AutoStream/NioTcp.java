@@ -1,7 +1,6 @@
 package AutoStream;
 
 import ErrorLog.ErrorLog;
-import Tool.ThreadPool;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,26 +11,21 @@ import java.nio.channels.SocketChannel;
 /**
  * Created by root on 16-10-27.
  */
-public abstract class NioTcp implements NioStream{
+public abstract class NioTcp implements NioChannel {
     protected String ip;
     protected int port;
-    protected int restartTime = -1;
-    protected int restartCount = 0;
-    protected StreamReceiver receiver;
+    protected StreamReceiverWithObject receiver;
     protected final static int DEFAULT_BUFFER_SIZE = 1024 * 1024;
     protected ByteBuffer buffer = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
     protected int reconnectTime =3*1000;
     protected Selector selector;
-
-    public NioTcp(String ip,int port,StreamReceiver receiver) {
+    protected int restartTime=-1;
+    protected int restartCount=0;
+    protected int maxCount=-1;
+    public NioTcp(String ip, int port, StreamReceiverWithObject receiver) {
         this.ip=ip;
         this.port=port;
         this.receiver=receiver;
-    }
-
-    @Override
-    public void awake(int num) {
-
     }
 
     @Override
@@ -48,7 +42,7 @@ public abstract class NioTcp implements NioStream{
             if (count > 0) {
                 byte[] data = new byte[buffer.position()];
                 System.arraycopy(buffer.array(), 0, data, 0, data.length);
-                receiver.read(data);
+                handleData(data,key);
             } else if (count == -1) {
                 System.out.println("closing one channel,ip=" + ip + ",port=" + port);
                 closeKey(key);
@@ -60,30 +54,53 @@ public abstract class NioTcp implements NioStream{
         }
     }
 
+    protected void handleData(byte[] data,SelectionKey key){
+        receiver.read(data,key.channel());
+    }
+
+
     @Override
     public void writable(SelectionKey key) throws IOException {
 
     }
 
 
-    /**
-     * 关闭指定SelectKey
-     *
-     * @param key
-     */
-    protected void closeKey(SelectionKey key) {
+    protected void closeKey(SelectionKey key){
         try {
-            if (key != null) {
-                key.cancel();
-                key.channel().close();
-            }
+            key.channel().close();
         } catch (IOException e) {
             ErrorLog.writeLog(e);
         }
+        key.cancel();
     }
 
     @Override
-    public void setRestartTime(int restartTime) {
-        this.restartTime=restartTime;
+    public void close() {
+
+    }
+
+    public static NioTcp getNioTcp(int NioType, String ip, int port, StreamReceiverWithObject receiver){
+        switch (NioType){
+            case AutoStream.TcpClient:
+                return new NioTcpClient(ip,port,receiver);
+            case AutoStream.TcpServer:
+                return new NioTcpServer(ip,port,receiver);
+            default:
+                return new NioTcpClient(ip,port,receiver);
+        }
+    }
+
+    public NioTcp setRestartTime(int restartTime) {
+        this.restartTime = restartTime;
+        return this;
+    }
+
+    public NioTcp setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
+        return this;
+    }
+
+    public NioStream getNioStream(){
+        return new NioStream(this);
     }
 }

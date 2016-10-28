@@ -1,28 +1,41 @@
 package AutoStream;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
 /**
- * Created by root on 16-10-27.
+ * Created by root on 16-10-28.
  */
-public interface NioStream {
+public class NioStream extends AutoStream {
+    private NioBase nioBase;
+    private NioChannel nioChannel;
+    public NioStream(int NioType, String ip, int port, StreamReceiverWithObject receiver) {
+        nioChannel=NioTcp.getNioTcp(NioType,ip,port,receiver);
+        nioBase=new NioBase(nioChannel);
+    }
 
-    void open(Selector selector) throws IOException;
+    public NioStream(NioChannel nioChannel){
+        this.nioChannel=nioChannel;
+        nioBase=new NioBase(nioChannel);
 
-    void awake(int num);
+    }
 
-    void acceptable(SelectionKey key)throws IOException;
+    @Override
+    public void start() throws IOException {
+        nioBase.start();
+    }
 
-    void readable(SelectionKey key)throws IOException;
+    @Override
+    public void send(byte[] data) {
+        nioChannel.send(data);
+    }
 
-    void writable(SelectionKey key)throws IOException;
 
-    void connectable(SelectionKey key)throws IOException;
+    public void send(byte[] data, Object index) {
+        nioChannel.send(data,index);
+    }
 
-    void send(byte[] data);
-
-    void setRestartTime(int restartTime);
+    @Override
+    public void stop() {
+        nioBase.stop();
+    }
 }
