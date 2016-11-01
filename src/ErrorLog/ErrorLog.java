@@ -1,23 +1,48 @@
 package ErrorLog;
 
+import ErrorLog.log.DatabaseLog;
+import ErrorLog.log.DebugLog;
+import ErrorLog.log.FileLog;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 /**
  * Created by degin on 2016/7/25.
  */
 public class ErrorLog {
-    private static Log[] logs;
+    private static List<Log> logs=new ArrayList<>();
+    /**
+     * 调试输出
+     */
+    private static final int DEBUG_LOG=1<<0;
+    /**
+     * 文件输出
+     */
+    private static final int FILE_LOG=1<<1;
+    /**
+     * 数据库输出
+     */
+    private static final int DATABASE_LOG=1<<2;
 
-    public static void init(String serviceName, LogType... logTypes) {
+    public static void init(String serviceName, int logTypes) {
         if (logs != null) {
             return;
         }
-        logs = new Log[logTypes.length];
-        for (int i = 0; i < logTypes.length; i++) {
-            logs[i] = logTypes[i].getLog(serviceName);
+        if((DEBUG_LOG&logTypes)!=0){
+            logs.add(new DebugLog());
+        }
+        if((FILE_LOG&logTypes)!=0){
+            logs.add(new FileLog(serviceName));
+        }
+        if((DATABASE_LOG&logTypes)!=0){
+            logs.add(new DatabaseLog(serviceName));
         }
     }
 
     public static void setDebug() {
-        init("", LogType.DEBUG_LOG);
+        init("", DEBUG_LOG);
     }
 
     public static void writeLog(String massage, Throwable e) {

@@ -22,9 +22,9 @@ public interface NioChannel {
 
     void connectable(SelectionKey key)throws IOException;
 
-    void send(byte[] data);
+    boolean send(byte[] data);
 
-    void send(byte[] data,Object object);
+    boolean send(byte[] data,Object object);
 
     void close();
 

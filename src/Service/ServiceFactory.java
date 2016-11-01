@@ -31,7 +31,7 @@ public abstract class ServiceFactory implements DatabaseObjectFactory {
      */
     public abstract String getServiceName();
 
-    public abstract LogType[] getLogTypes();
+    public abstract int getLogTypes();
 
     /**
      * 返回服务类

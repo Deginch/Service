@@ -30,8 +30,8 @@ public class NioStream extends AutoStream {
     }
 
 
-    public void send(byte[] data, Object index) {
-        nioChannel.send(data,index);
+    public boolean send(byte[] data, Object index) {
+        return nioChannel.send(data,index);
     }
 
     @Override

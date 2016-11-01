@@ -52,7 +52,7 @@ public class NioTcpServer extends NioTcp {
 
 
     @Override
-    public void send(byte[] data) {
+    public boolean send(byte[] data) {
         Iterator iterator = selector.keys().iterator();
         while (iterator.hasNext()) {
             SelectionKey key = (SelectionKey) iterator.next();
@@ -65,6 +65,7 @@ public class NioTcpServer extends NioTcp {
                 }
             }
         }
+        return true;
     }
 
     @Override
@@ -76,14 +77,21 @@ public class NioTcpServer extends NioTcp {
     }
 
     @Override
-    public void send(byte[] data, Object object) {
-        if(object!=null&&hashMap.containsKey(object)){
-            try {
-                ((SocketChannel)hashMap.get(object).channel()).write(ByteBuffer.wrap(data));
-            } catch (IOException e) {
-                ErrorLog.writeLog("ServerChannel ip=" + ip + " port=" + port, e);
-                closeKey(hashMap.get(object));
-            }
+    public boolean send(byte[] data, Object object) {
+        if(object==null){
+            send(data);
+            return true;
+        }
+        if(!hashMap.containsKey(object)){
+            return false;
+        }
+        try {
+            ((SocketChannel)hashMap.get(object).channel()).write(ByteBuffer.wrap(data));
+            return true;
+        } catch (IOException e) {
+            ErrorLog.writeLog("ServerChannel ip=" + ip + " port=" + port, e);
+            closeKey(hashMap.get(object));
+            return false;
         }
     }
 

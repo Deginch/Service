@@ -101,12 +101,13 @@ class NioTcpClient extends NioTcp {
     }
 
     @Override
-    public void send(byte[] data) {
+    public boolean send(byte[] data) {
         if (!isConnecting) {
             ErrorLog.writeLog("sending data");
             try {
                 System.out.println(channel.isConnected());
                 channel.write(ByteBuffer.wrap(data));
+                return true;
             } catch (IOException e) {
                 ErrorLog.writeLog(e);
                 try {
@@ -121,13 +122,16 @@ class NioTcpClient extends NioTcp {
                     ErrorLog.writeLog(e1);
                 }
                 connect();
+                return false;
             }
+        }else {
+            return false;
         }
     }
 
     @Override
-    public void send(byte[] data, Object object) {
-        send(data);
+    public boolean send(byte[] data, Object object) {
+        return send(data);
     }
 
 
