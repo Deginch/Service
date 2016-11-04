@@ -16,20 +16,17 @@ public class ErrorLog {
     /**
      * 调试输出
      */
-    private static final int DEBUG_LOG=1<<0;
+    public static final int DEBUG_LOG=1<<0;
     /**
      * 文件输出
      */
-    private static final int FILE_LOG=1<<1;
+    public static final int FILE_LOG=1<<1;
     /**
      * 数据库输出
      */
-    private static final int DATABASE_LOG=1<<2;
+    public static final int DATABASE_LOG=1<<2;
 
     public static void init(String serviceName, int logTypes) {
-        if (logs != null) {
-            return;
-        }
         if((DEBUG_LOG&logTypes)!=0){
             logs.add(new DebugLog());
         }

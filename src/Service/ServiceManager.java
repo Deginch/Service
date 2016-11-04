@@ -16,13 +16,17 @@ import java.util.Hashtable;
  * 服务管理类，管理所有服务的重启开关等工作。
  * 也可以作为单个服务类来作为服务管理类的子类
  */
-public class ServiceManager implements Commander, DatabaseObject {
+@Database(tableName = "tb_service_state")
+public class ServiceManager implements Commander {
 
+    @DatabaseField(isIndex = true)
     public String service_name;
+    @DatabaseField
     public int service_state = ServiceState.Running.getState();
+    @DatabaseField
     public int command;
 
-    private Class<DatabaseObject> clazz;
+    private Class clazz;
     private Hashtable<Integer, Service> serviceHashtable;
     private volatile boolean isRun = false;
     private String serviceTableName;
@@ -32,8 +36,8 @@ public class ServiceManager implements Commander, DatabaseObject {
         this.clazz = serviceFactory.getServiceClass();
         this.serviceFactory = serviceFactory;
         service_name = serviceFactory.getServiceName();
-        serviceTableName = serviceFactory.getDefaultService().getTableName();
-        ErrorLog.init(service_name,serviceFactory.getLogTypes());
+        serviceTableName = ((Database)clazz.getAnnotation(Database.class)).tableName();
+        ErrorLog.init(service_name, serviceFactory.getLogTypes());
         ThreadPool.init();
         killCallBack();
     }
@@ -41,25 +45,12 @@ public class ServiceManager implements Commander, DatabaseObject {
     @Override
     public void start() {
 
-        //调用服务初始化函数init
         ErrorLog.writeLog("service serviceStart!");
-        Method method = null;
-        try {
-            method = clazz.getMethod("beforeStart");
-            method.invoke(null);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        String selectSql = "select * from " + serviceTableName + " where changed != ?;";
         isRun = true;
         DatabaseHandler handler = null;
         try {
             handler = new DatabaseHandler();
-            serviceHashtable = handler.queryHashTable(selectSql, new Object[]{-1}, serviceFactory);
+            serviceHashtable = handler.queryHashTable(serviceFactory, Where.notEqual("changed", -1));
             for (Service service : serviceHashtable.values()) {
                 service.serviceStart();
                 handler.update(service);
@@ -78,10 +69,10 @@ public class ServiceManager implements Commander, DatabaseObject {
                 handler.close();
             }
         }
-        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){
+        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                ErrorLog.writeLog("get e uncaught exception:",e);
+                ErrorLog.writeLog("get e uncaught exception:", e);
             }
         });
     }
@@ -89,18 +80,6 @@ public class ServiceManager implements Commander, DatabaseObject {
     @Override
     public void stop() {
         ErrorLog.writeLog("service serviceStop!");
-        //调用服务初始化函数init
-        Method method = null;
-        try {
-            method = clazz.getMethod("afterStop");
-            method.invoke(null);
-        } catch (NoSuchMethodException e) {
-            ErrorLog.writeLog(e);
-        } catch (InvocationTargetException e) {
-            ErrorLog.writeLog(e);
-        } catch (IllegalAccessException e) {
-            ErrorLog.writeLog(e);
-        }
         isRun = false;
         DatabaseHandler handler = null;
         try {
@@ -144,8 +123,7 @@ public class ServiceManager implements Commander, DatabaseObject {
                 e.printStackTrace();
             }
             try {
-                String selectSql = "select * from " + serviceTableName + " where changed != ?;";
-                serviceHashtable =  handler.queryHashTable(selectSql, new Object[]{-1}, serviceFactory);
+                serviceHashtable = handler.queryHashTable(serviceFactory, Where.notEqual("changed", -1));
                 for (Service service : serviceHashtable.values()) {
                     service.serviceStart();
                     handler.update(service);
@@ -195,7 +173,7 @@ public class ServiceManager implements Commander, DatabaseObject {
                 handler = new DatabaseHandler();
                 while (isRun) {
                     try {
-                        handler.select(ServiceManager.this);
+                        handler.refresh(ServiceManager.this);
                         ServiceCommand.handleCommand(ServiceManager.this, ServiceCommand.parseFromInt(ServiceManager.this.command));
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -222,16 +200,13 @@ public class ServiceManager implements Commander, DatabaseObject {
     class ServiceDynamicLoading implements Runnable {
 
         public void run() {
-            String sql = "select * from " + serviceTableName + " where changed > ? or (changed = ? and state = ?);";
             DBHelper db = null;
             try {
                 db = new DBHelper();
                 DatabaseHandler handler = new DatabaseHandler(db);
                 while (isRun) {
                     try {
-                        Hashtable<Integer, Service> changedServiceHashtable =  handler.queryHashTable(sql, new
-                                Object[]{ServiceChanged
-                                .NoChange.getChanged(), ServiceChanged.Deleted.getChanged(), ServiceState.Running.getState()},serviceFactory);
+                        Hashtable<Integer, Service> changedServiceHashtable = handler.queryHashTable(serviceFactory, Where.bigger("changed", 0).or(Where.isEqual("changed", -1).and(Where.isEqual("state", 1))));
 
                         for (Service service : changedServiceHashtable.values()) {
                             ThreadPool.exec(new Runnable() {
@@ -259,13 +234,4 @@ public class ServiceManager implements Commander, DatabaseObject {
 
     }
 
-    @Override
-    public Field getIndexField() throws NoSuchFieldException {
-        return this.getClass().getField("service_name");
-    }
-
-    @Override
-    public String getTableName() {
-        return "tb_service_state";
-    }
 }

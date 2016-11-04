@@ -1,13 +1,16 @@
 
 import AutoStream.*;
+import Database.DatabaseField;
+import Database.ReflectUtil;
 import ErrorLog.ErrorLog;
+import Service.ServiceManager;
 import Tool.FileUtil;
-import Tool.ThreadPool;
+import test.MyTestFactory;
 
 import java.io.*;
-import java.util.Date;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Created by degin on 2016/7/3.
@@ -15,9 +18,8 @@ import java.util.Iterator;
 public class MyMain {
 
     public static void main(String[] agrs) throws IOException, InterruptedException {
-        ErrorLog.setDebug();
-        ThreadPool.init();
-        tcpTest();
+        ServiceManager serviceManager=new ServiceManager(new MyTestFactory());
+        serviceManager.start();
     }
 
     public static void ErrorLogTest() {

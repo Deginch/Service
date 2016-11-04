@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 
 import Database.DatabaseHandler;
+import Database.Where;
 import Service.Service;
 import ErrorLog.ErrorLog;
 
@@ -59,6 +60,9 @@ public enum ServiceChanged {
                         oldService.serviceStop();
                         oldService.setChanged(ServiceChanged.Deleted.getChanged());
                         handler.update(oldService);
+                    }else {
+                        service.setState(ServiceState.Sleep.getState());
+                        handler.update(service);
                     }
                     break;
                 default:

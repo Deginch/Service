@@ -1,15 +1,19 @@
 package ErrorLog.log;
 
-import Database.DatabaseObject;
+import Database.*;
 
 import java.lang.reflect.Field;
 
 /**
  * Created by root on 16-10-26.
  */
-public class LogMessage implements DatabaseObject {
+@Database(tableName = "tb_test_log")
+public class LogMessage {
+    @DatabaseField(isIndex = true)
     public int id;
+    @DatabaseField
     public int level;
+    @DatabaseField
     public String message;
     private static String tableName;
 
@@ -17,17 +21,6 @@ public class LogMessage implements DatabaseObject {
         this.message = message;
         this.level = level;
     }
-
-    @Override
-    public Field getIndexField() throws NoSuchFieldException {
-        return this.getClass().getField("id");
-    }
-
-    @Override
-    public String getTableName() {
-        return tableName;
-    }
-
     /**
      * 设置存储的数据库表名
      *
