@@ -2,12 +2,10 @@ package ErrorLog.log;
 
 import Database.*;
 
-import java.lang.reflect.Field;
-
 /**
  * Created by root on 16-10-26.
  */
-@Database(tableName = "tb_test_log")
+@Database(value = "tb_test_log")
 public class LogMessage {
     @DatabaseField(isIndex = true)
     public int id;

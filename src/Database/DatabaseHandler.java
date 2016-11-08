@@ -280,6 +280,7 @@ public class DatabaseHandler {
 
     /**
      * 生成指定类的哈希表，主键为key
+     *
      * @param clazz
      * @param where
      * @return
@@ -303,11 +304,12 @@ public class DatabaseHandler {
             public Class getInstanceClass() {
                 return clazz;
             }
-        },where);
+        }, where);
     }
 
     /**
      * 根据指定的工厂生对对应的哈希表，表头为主键
+     *
      * @param factory
      * @param where
      * @return
@@ -415,7 +417,7 @@ public class DatabaseHandler {
     private String getTableName(Class clazz) {
         if (clazz.isAnnotationPresent(Database.class)) {
             Database database = (Database) clazz.getAnnotation(Database.class);
-            return database.tableName();
+            return database.value();
         }
         throw new NoSuchElementException("该类无表名注解");
     }
@@ -485,4 +487,53 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * 改变类的数据库表名
+     *
+     * @param clazz
+     * @param tableName
+     * @return 返回之前的旧表名
+     */
+    public static String changeTableName(Class clazz, String tableName) {
+        Annotation annotation = clazz.getAnnotation(Database.class);
+        if (annotation == null)
+            throw new IllegalArgumentException("该类无表名");
+        return (String) ReflectUtil.changeAnnotationValue(annotation, "value", tableName);
+    }
+
+    /**
+     * 改变属性的数据库表值
+     *
+     * @param field 必须是getDeclaredField(s)获取的字段，否则失败
+     * @param isIndex
+     * @param select
+     * @param update
+     * @param insert
+     */
+    public static void changeFieldProperty(Field field, boolean isIndex, boolean select, boolean update, boolean insert) {
+        DatabaseField old = field.getAnnotation(DatabaseField.class);
+        Map<String, Object> map = ReflectUtil.getAnnotationMemberValues(old);
+        map.put("isIndex", isIndex);
+        map.put("select", select);
+        map.put("update", update);
+        map.put("insert", insert);
+    }
+
+    /**
+     * 改变属性的数据库表值
+     *@param clazz
+     * @param fieldName
+     * @param isIndex
+     * @param select
+     * @param update
+     * @param insert
+     */
+    public static void changeFieldProperty(Class clazz,String fieldName, boolean isIndex, boolean select, boolean update, boolean insert) {
+        DatabaseField old = ReflectUtil.getDeclaredField(clazz,fieldName).getAnnotation(DatabaseField.class);
+        Map<String, Object> map = ReflectUtil.getAnnotationMemberValues(old);
+        map.put("isIndex", isIndex);
+        map.put("select", select);
+        map.put("update", update);
+        map.put("insert", insert);
+    }
 }

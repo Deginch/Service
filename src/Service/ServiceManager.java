@@ -5,9 +5,6 @@ import ServiceHandler.*;
 import ErrorLog.ErrorLog;
 import Tool.ThreadPool;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.Hashtable;
 
@@ -16,7 +13,7 @@ import java.util.Hashtable;
  * 服务管理类，管理所有服务的重启开关等工作。
  * 也可以作为单个服务类来作为服务管理类的子类
  */
-@Database(tableName = "tb_service_state")
+@Database(value = "tb_service_state")
 public class ServiceManager implements Commander {
 
     @DatabaseField(isIndex = true)
@@ -32,15 +29,39 @@ public class ServiceManager implements Commander {
     private String serviceTableName;
     private ServiceFactory serviceFactory;
 
-    public ServiceManager(ServiceFactory serviceFactory) {
+    public ServiceManager(ServiceFactory serviceFactory) throws InterruptedException {
+        while (!testNetwork()) {//假如无法连接数据库，每隔1分钟重启一次
+            Thread.sleep(60 * 1000);
+        }
         this.clazz = serviceFactory.getServiceClass();
         this.serviceFactory = serviceFactory;
         service_name = serviceFactory.getServiceName();
-        serviceTableName = ((Database)clazz.getAnnotation(Database.class)).tableName();
+        serviceTableName = ((Database) clazz.getAnnotation(Database.class)).value();
         ErrorLog.init(service_name, serviceFactory.getLogTypes());
         ThreadPool.init();
         killCallBack();
     }
+
+    /**
+     * 连接数据库查看是否可用
+     *
+     * @return
+     */
+    private boolean testNetwork() {
+        DatabaseHandler handler = null;
+        try {
+            handler = new DatabaseHandler();
+        } catch (SQLException e) {
+            System.err.println("网络无法连接\n");
+            return false;
+        } finally {
+            if (handler != null) {
+                handler.close();
+            }
+        }
+        return true;
+    }
+
 
     @Override
     public void start() {

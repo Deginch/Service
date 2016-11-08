@@ -6,12 +6,12 @@ import Service.Service;
 /**
  * Created by sheldon on 16-11-4.
  */
-@Database(tableName = "mytest")
+@Database("mytest")
 public class Mytest extends Service{
     @DatabaseField
-    private String a;
+    public String a;
     @DatabaseField
-    private String b;
+    public String b;
     @Override
     protected void start() {
 

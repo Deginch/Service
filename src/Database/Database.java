@@ -15,5 +15,5 @@ public @interface Database {
      * 数据库表名
      * @return
      */
-    public String tableName();
+    public String value();
 }

@@ -161,7 +161,7 @@ public class JdbcPool implements DataSource {
             @Override
             public synchronized Object invoke(Object proxy, Method method, Object[] args)
                     throws Throwable {
-                if (!method.getName().equals("stop")) {
+                if (!method.getName().equals("close")) {
                     return method.invoke(conn, args);
                 } else {
                     usedList.remove(conn);

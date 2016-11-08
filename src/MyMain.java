@@ -1,23 +1,31 @@
 
 import AutoStream.*;
+import Database.Database;
 import Database.DatabaseField;
 import Database.ReflectUtil;
 import ErrorLog.ErrorLog;
 import Service.ServiceManager;
 import Tool.FileUtil;
 import test.MyTestFactory;
+import test.Mytest;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.HashMap;
-
+import Database.*;
 /**
  * Created by degin on 2016/7/3.
  */
 public class MyMain {
 
-    public static void main(String[] agrs) throws IOException, InterruptedException {
+    public static void main(String[] agrs) throws IOException, InterruptedException, NoSuchFieldException, SQLException {
+        serviceManagerTest();
+    }
+
+    public static void serviceManagerTest() throws InterruptedException {
         ServiceManager serviceManager=new ServiceManager(new MyTestFactory());
         serviceManager.start();
     }
