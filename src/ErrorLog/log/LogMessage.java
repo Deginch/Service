@@ -2,12 +2,12 @@ package ErrorLog.log;
 
 import Database.ReflectStuff.Column;
 import Database.ReflectStuff.Table;
+import Database.TableInterface;
 
 /**
  * Created by root on 16-10-26.
  */
-@Table(value = "tb_test_log")
-public class LogMessage {
+public class LogMessage implements TableInterface{
     @Column(isIndex = true)
     public int id;
     @Column
@@ -29,4 +29,8 @@ public class LogMessage {
         LogMessage.tableName = tableName;
     }
 
+    @Override
+    public String getTableName() {
+        return tableName;
+    }
 }

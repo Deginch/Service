@@ -62,7 +62,7 @@ public class DatabaseHandler {
      *
      * @param bean
      */
-    public int delete(Objects bean) throws SQLException {
+    public int delete(Object bean) throws SQLException {
         try {
             Field indexField = TableUtil.getIndexField(bean.getClass());
             Where where = Where.isEqual(indexField.getName(), indexField.get(bean));
@@ -228,7 +228,7 @@ public class DatabaseHandler {
     }
 
     /**
-     * 根据sql查询数据返回指定类对象
+     * 根据sql查询数据返回指定类对象，查询的数据表只能通过类注解获取
      */
     public List queryList(Factory factory, Where where) throws SQLException {
         HashMap<Field, Column> fieldHashMap = TableUtil.getAllSelectedOrIndexField(factory.getInstanceClass());
@@ -262,7 +262,7 @@ public class DatabaseHandler {
     }
 
     /**
-     * 根据sql查询数据返回指定类对象
+     * 根据sql查询数据返回指定类对象，查询的数据表只能通过类注解获取
      */
     public List queryList(Class clazz, Where where) throws SQLException {
         return queryList(new Factory() {
@@ -286,7 +286,7 @@ public class DatabaseHandler {
     }
 
     /**
-     * 生成指定类的哈希表，主键为key
+     * 生成指定类的哈希表，主键为key，查询的数据表只能通过类注解获取
      *
      * @param clazz
      * @param where
@@ -315,7 +315,7 @@ public class DatabaseHandler {
     }
 
     /**
-     * 根据指定的工厂生对对应的哈希表，表头为主键
+     * 根据指定的工厂生对对应的哈希表，表头为主键，查询的数据表只能通过类注解获取
      *
      * @param factory
      * @param where

@@ -58,16 +58,7 @@ public class DatabaseLog implements Log {
      * @return
      */
     public static String getMessage(Throwable e) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(e);
-        builder.append("\n");
-        StackTraceElement[] trace = e.getStackTrace();
-        for (StackTraceElement traceElement : trace) {
-            builder.append("\tat ");
-            builder.append(traceElement);
-            builder.append("\n");
-        }
-        return builder.toString();
+        return e.getMessage();
     }
 
 

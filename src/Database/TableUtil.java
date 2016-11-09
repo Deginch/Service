@@ -157,4 +157,17 @@ public class TableUtil {
         map.put("update", update);
         map.put("insert", insert);
     }
+
+    /**
+     * 返回字段对应数据库的字段类型名字，以便于创建字段
+     * @param field
+     * @return
+     */
+    public static String getFieldTypeForMysql(Field field){
+        if(field.getType().equals(java.util.Date.class)){
+            return "datetime";
+        }else {
+            return field.getType().getName();
+        }
+    }
 }
