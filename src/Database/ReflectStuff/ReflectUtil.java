@@ -1,10 +1,5 @@
-package Database;
+package Database.ReflectStuff;
 
-import sun.management.MethodInfo;
-import sun.reflect.FieldInfo;
-import test.Mytest;
-
-import javax.xml.crypto.Data;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
@@ -110,8 +105,4 @@ public class ReflectUtil {
         }
         return memberValues;
     }
-}
-
-interface AnnotationCollector {
-    <T extends Annotation> boolean collect(T annotation);
 }

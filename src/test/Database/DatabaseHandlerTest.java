@@ -1,6 +1,5 @@
 package test.Database; 
 
-import Database.Database;
 import Database.DatabaseHandler;
 import Database.Where;
 import org.junit.Assert;
@@ -214,7 +213,7 @@ try {
 
 /** 
 * 
-* Method: getAllSelectedField(Class clazz) 
+* Method: getAllSelectedOrIndexField(Class clazz)
 * 
 */ 
 @Test
@@ -222,7 +221,7 @@ public void testGetAllSelectedField() throws Exception {
 //TODO: Test goes here... 
 /* 
 try { 
-   Method method = DatabaseHandler.getClass().getMethod("getAllSelectedField", Class.class); 
+   Method method = DatabaseHandler.getClass().getMethod("getAllSelectedOrIndexField", Class.class);
    method.setAccessible(true); 
    method.invoke(<Object>, <Parameters>); 
 } catch(NoSuchMethodException e) { 
@@ -234,7 +233,7 @@ try {
 
 /** 
 * 
-* Method: getAllUpdateField(Class clazz) 
+* Method: getAllUpdateOrIndexField(Class clazz)
 * 
 */ 
 @Test
@@ -242,7 +241,7 @@ public void testGetAllUpdateField() throws Exception {
 //TODO: Test goes here... 
 /* 
 try { 
-   Method method = DatabaseHandler.getClass().getMethod("getAllUpdateField", Class.class); 
+   Method method = DatabaseHandler.getClass().getMethod("getAllUpdateOrIndexField", Class.class);
    method.setAccessible(true); 
    method.invoke(<Object>, <Parameters>); 
 } catch(NoSuchMethodException e) { 
@@ -254,7 +253,7 @@ try {
 
 /** 
 * 
-* Method: getAllInsertField(Class clazz) 
+* Method: getAllInsertOrIndexField(Class clazz)
 * 
 */ 
 @Test
@@ -262,7 +261,7 @@ public void testGetAllInsertField() throws Exception {
 //TODO: Test goes here... 
 /* 
 try { 
-   Method method = DatabaseHandler.getClass().getMethod("getAllInsertField", Class.class); 
+   Method method = DatabaseHandler.getClass().getMethod("getAllInsertOrIndexField", Class.class);
    method.setAccessible(true); 
    method.invoke(<Object>, <Parameters>); 
 } catch(NoSuchMethodException e) { 

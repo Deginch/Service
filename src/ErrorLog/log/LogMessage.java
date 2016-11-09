@@ -1,17 +1,18 @@
 package ErrorLog.log;
 
-import Database.*;
+import Database.ReflectStuff.Column;
+import Database.ReflectStuff.Table;
 
 /**
  * Created by root on 16-10-26.
  */
-@Database(value = "tb_test_log")
+@Table(value = "tb_test_log")
 public class LogMessage {
-    @DatabaseField(isIndex = true)
+    @Column(isIndex = true)
     public int id;
-    @DatabaseField
+    @Column
     public int level;
-    @DatabaseField
+    @Column
     public String message;
     private static String tableName;
 

@@ -62,7 +62,7 @@ public class Where {
         return this;
     }
 
-    public String getWhereSentence(){
+    public String toString(){
         return isNoWhere()?"":" where "+sentence;
     }
 

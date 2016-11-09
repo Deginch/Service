@@ -1,16 +1,17 @@
 package test;
 
-import Database.*;
+import Database.ReflectStuff.Column;
+import Database.ReflectStuff.Table;
 import Service.Service;
 
 /**
  * Created by sheldon on 16-11-4.
  */
-@Database("mytest")
+@Table("mytest")
 public class Mytest extends Service{
-    @DatabaseField
+    @Column
     public String a;
-    @DatabaseField
+    @Column
     public String b;
     @Override
     protected void start() {

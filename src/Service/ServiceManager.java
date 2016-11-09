@@ -1,6 +1,8 @@
 package Service;
 
 import Database.*;
+import Database.ReflectStuff.Column;
+import Database.ReflectStuff.Table;
 import ServiceHandler.*;
 import ErrorLog.ErrorLog;
 import Tool.ThreadPool;
@@ -13,14 +15,14 @@ import java.util.Hashtable;
  * 服务管理类，管理所有服务的重启开关等工作。
  * 也可以作为单个服务类来作为服务管理类的子类
  */
-@Database(value = "tb_service_state")
+@Table(value = "tb_service_state")
 public class ServiceManager implements Commander {
 
-    @DatabaseField(isIndex = true)
+    @Column(isIndex = true)
     public String service_name;
-    @DatabaseField
+    @Column
     public int service_state = ServiceState.Running.getState();
-    @DatabaseField
+    @Column
     public int command;
 
     private Class clazz;
@@ -36,7 +38,7 @@ public class ServiceManager implements Commander {
         this.clazz = serviceFactory.getServiceClass();
         this.serviceFactory = serviceFactory;
         service_name = serviceFactory.getServiceName();
-        serviceTableName = ((Database) clazz.getAnnotation(Database.class)).value();
+        serviceTableName = ((Table) clazz.getAnnotation(Table.class)).value();
         ErrorLog.init(service_name, serviceFactory.getLogTypes());
         ThreadPool.init();
         killCallBack();

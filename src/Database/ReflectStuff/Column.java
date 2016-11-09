@@ -1,4 +1,4 @@
-package Database;
+package Database.ReflectStuff;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface DatabaseField {
+public @interface Column {
     /**
      * 是否是索引，默认否
      * @return

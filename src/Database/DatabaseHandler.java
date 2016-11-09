@@ -1,8 +1,8 @@
 package Database;
 
+import Database.ReflectStuff.Column;
 import ErrorLog.ErrorLog;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,9 +37,9 @@ public class DatabaseHandler {
             Where where = Where.noWhere();
             StringBuffer sqlBuffer = new StringBuffer();
             List<Object> params = new ArrayList<>();
-            sqlBuffer.append("update ").append(getTableName(bean.getClass())).append(" set ");
-            HashMap<Field, DatabaseField> fields = getAllUpdateField(bean.getClass());
-            for (Map.Entry<Field, DatabaseField> entry : fields.entrySet()) {
+            sqlBuffer.append("update ").append(TableUtil.getTableName(bean)).append(" set ");
+            HashMap<Field, Column> fields = TableUtil.getAllUpdateOrIndexField(bean.getClass());
+            for (Map.Entry<Field, Column> entry : fields.entrySet()) {
                 if (entry.getValue().isIndex()) {
                     where.and(Where.isEqual(entry.getKey().getName(), entry.getKey().get(bean)));
                 } else {
@@ -48,7 +48,7 @@ public class DatabaseHandler {
                     params.add(entry.getKey().get(bean));
                 }
             }
-            sqlBuffer.delete(sqlBuffer.length() - 1, sqlBuffer.length()).append(where.getWhereSentence());
+            sqlBuffer.delete(sqlBuffer.length() - 1, sqlBuffer.length()).append(where.toString());
             params.addAll(where.getParams());
             return dbHelper.execute(sqlBuffer.toString(), params.toArray());
         } catch (IllegalAccessException e) {
@@ -64,11 +64,11 @@ public class DatabaseHandler {
      */
     public int delete(Objects bean) throws SQLException {
         try {
-            Field indexField = getIndexField(bean.getClass());
+            Field indexField = TableUtil.getIndexField(bean.getClass());
             Where where = Where.isEqual(indexField.getName(), indexField.get(bean));
             StringBuffer sqlBuffer = new StringBuffer();
             List<Object> params = new ArrayList<>();
-            sqlBuffer.append("delete from ").append(getTableName(bean.getClass())).append(where.getWhereSentence());
+            sqlBuffer.append("delete from ").append(TableUtil.getTableName(bean)).append(where.toString());
             params.addAll(where.getParams());
             return dbHelper.execute(sqlBuffer.toString(), params.toArray());
         } catch (IllegalAccessException e) {
@@ -85,15 +85,14 @@ public class DatabaseHandler {
      * @param insertIndex 是否插入主键
      */
     public int insert(Object bean, boolean insertIndex) throws SQLException {
-        Field indexField = null;
         try {
-            HashMap<Field, DatabaseField> fields = getAllInsertField(bean.getClass());
+            HashMap<Field, Column> fields = TableUtil.getAllInsertOrIndexField(bean.getClass());
             StringBuffer sqlBuffer = new StringBuffer();
             StringBuffer valuesBuffer = new StringBuffer();
             List<Object> params = new ArrayList<>();
-            sqlBuffer.append("insert into ").append(getTableName(bean.getClass())).append(" (");
+            sqlBuffer.append("insert into ").append(TableUtil.getTableName(bean)).append(" (");
             valuesBuffer.append(" (");
-            for (Map.Entry<Field, DatabaseField> entry : fields.entrySet()) {
+            for (Map.Entry<Field, Column> entry : fields.entrySet()) {
                 if (!entry.getValue().isIndex() || insertIndex) {
                     sqlBuffer.append(entry.getKey().getName());
                     sqlBuffer.append(",");
@@ -111,6 +110,7 @@ public class DatabaseHandler {
         return -1;
     }
 
+
     /**
      * 插入记录，如果记录存在则更新
      *
@@ -119,13 +119,13 @@ public class DatabaseHandler {
     public int insertDuplicateUpdate(Object bean) throws SQLException {
         Field indexField = null;
         try {
-            HashMap<Field, DatabaseField> fields = getAllInsertField(bean.getClass());
+            HashMap<Field, Column> fields = TableUtil.getAllInsertOrIndexField(bean.getClass());
             StringBuffer insertBuffer = new StringBuffer();
             StringBuffer valuesBuffer = new StringBuffer();
             List<Object> params = new ArrayList<>();
-            insertBuffer.append("insert into ").append(getTableName(bean.getClass())).append(" (");
+            insertBuffer.append("insert into ").append(TableUtil.getTableName(bean)).append(" (");
             valuesBuffer.append(" (");
-            for (Map.Entry<Field, DatabaseField> entry : fields.entrySet()) {
+            for (Map.Entry<Field, Column> entry : fields.entrySet()) {
                 insertBuffer.append(entry.getKey().getName());
                 insertBuffer.append(",");
                 params.add(entry.getKey().get(bean));
@@ -135,7 +135,7 @@ public class DatabaseHandler {
             valuesBuffer.delete(valuesBuffer.length() - 1, valuesBuffer.length()).append(")");
             insertBuffer.delete(insertBuffer.length() - 1, insertBuffer.length()).append(")").append("values").append(valuesBuffer);
             insertBuffer.append(" on duplicate key update ");
-            for (Map.Entry<Field, DatabaseField> entry : fields.entrySet()) {
+            for (Map.Entry<Field, Column> entry : fields.entrySet()) {
                 if (!entry.getValue().isIndex()) {
                     insertBuffer.append(entry.getKey().getName()).append("=?").append(",");
                     params.add(entry.getKey().get(bean));
@@ -152,20 +152,19 @@ public class DatabaseHandler {
     /**
      * 一次插入多个对象
      *
-     * @param insertIndex
+     * @param insertIndex 是否插入主键index
      */
-    public int insert(List<?> list, boolean insertIndex) throws SQLException {
+    public int insert(List<?> list,boolean insertIndex) throws SQLException {
         if (list.size() < 1) {
             return -1;
         }
-        Field indexField = null;
         try {
-            HashMap<Field, DatabaseField> fields = getAllInsertField(list.get(0).getClass());
+            HashMap<Field, Column> fields = TableUtil.getAllInsertOrIndexField(list.get(0).getClass());
             StringBuffer sqlBuffer = new StringBuffer();
             StringBuffer valuesBuffer = new StringBuffer();
             List<Object> params = new ArrayList<>();
-            sqlBuffer.append("insert into ").append(getTableName(list.get(0).getClass())).append(" (");
-            for (Map.Entry<Field, DatabaseField> entry : fields.entrySet()) {
+            sqlBuffer.append("insert into ").append(TableUtil.getTableName(list.get(0))).append(" (");
+            for (Map.Entry<Field, Column> entry : fields.entrySet()) {
                 if (!entry.getValue().isIndex() || insertIndex) {
                     sqlBuffer.append(entry.getKey().getName());
                     sqlBuffer.append(",");
@@ -173,7 +172,7 @@ public class DatabaseHandler {
             }
             for (Object bean : list) {
                 valuesBuffer.append(" (");
-                for (Map.Entry<Field, DatabaseField> entry : fields.entrySet()) {
+                for (Map.Entry<Field, Column> entry : fields.entrySet()) {
                     if (!entry.getValue().isIndex() || insertIndex) {
                         valuesBuffer.append("?");
                         valuesBuffer.append(",");
@@ -198,10 +197,19 @@ public class DatabaseHandler {
      */
     public void refresh(Object bean) throws SQLException {
         try {
-            Field index = getIndexField(bean.getClass());
-            String sql = "select * from " + getTableName(bean.getClass()) + " where " + index.getName() + "=?";
-            dbHelper.queryMap(sql, new Object[]{index.get(bean)}, new ResultMapper() {
-                Set<Field> fields = getAllUpdateField(bean.getClass()).keySet();
+            Field index = TableUtil.getIndexField(bean.getClass());
+            Where where=Where.isEqual(index.getName(),index.get(bean));
+            HashMap<Field, Column> fieldHashMap = TableUtil.getAllSelectedOrIndexField(bean.getClass());
+            StringBuffer sqlBuffer = new StringBuffer("select ");
+            for (Map.Entry<Field, Column> entry : fieldHashMap.entrySet()) {
+                sqlBuffer.append(entry.getKey().getName());
+                sqlBuffer.append(",");
+            }
+            sqlBuffer.delete(sqlBuffer.length() - 1, sqlBuffer.length());
+            sqlBuffer.append(" from ").append(TableUtil.getTableName(bean)).append(where);
+
+            dbHelper.queryMap(sqlBuffer.toString(),where.getParams().toArray() , new ResultMapper() {
+                Set<Field> fields = TableUtil.getAllUpdateOrIndexField(bean.getClass()).keySet();
 
                 @Override
                 public boolean map(ResultSet row) throws SQLException {
@@ -223,14 +231,14 @@ public class DatabaseHandler {
      * 根据sql查询数据返回指定类对象
      */
     public List queryList(Factory factory, Where where) throws SQLException {
-        HashMap<Field, DatabaseField> fieldHashMap = getAllSelectedField(factory.getInstanceClass());
+        HashMap<Field, Column> fieldHashMap = TableUtil.getAllSelectedOrIndexField(factory.getInstanceClass());
         StringBuffer sqlBuffer = new StringBuffer("select ");
-        for (Map.Entry<Field, DatabaseField> entry : fieldHashMap.entrySet()) {
+        for (Map.Entry<Field, Column> entry : fieldHashMap.entrySet()) {
             sqlBuffer.append(entry.getKey().getName());
             sqlBuffer.append(",");
         }
         sqlBuffer.delete(sqlBuffer.length() - 1, sqlBuffer.length());
-        sqlBuffer.append(" from ").append(getTableName(factory.getInstanceClass())).append(where.getWhereSentence());
+        sqlBuffer.append(" from ").append(TableUtil.getTableName(factory.getInstanceClass())).append(where);
 
         return (List) dbHelper.queryMap(sqlBuffer.toString(), where.getParams().toArray(), new ResultMapper() {
             List<Object> list = new LinkedList<>();
@@ -252,7 +260,6 @@ public class DatabaseHandler {
             }
         });
     }
-
 
     /**
      * 根据sql查询数据返回指定类对象
@@ -316,18 +323,18 @@ public class DatabaseHandler {
      * @throws SQLException
      */
     public Hashtable queryHashTable(Factory factory, Where where) throws SQLException {
-        HashMap<Field, DatabaseField> fieldHashMap = getAllSelectedField(factory.getInstanceClass());
+        HashMap<Field, Column> fieldHashMap = TableUtil.getAllSelectedOrIndexField(factory.getInstanceClass());
         StringBuffer sqlBuffer = new StringBuffer("select ");
-        for (Map.Entry<Field, DatabaseField> entry : fieldHashMap.entrySet()) {
+        for (Map.Entry<Field, Column> entry : fieldHashMap.entrySet()) {
             sqlBuffer.append(entry.getKey().getName());
             sqlBuffer.append(",");
         }
         sqlBuffer.delete(sqlBuffer.length() - 1, sqlBuffer.length());
-        sqlBuffer.append(" from ").append(getTableName(factory.getInstanceClass())).append(where.getWhereSentence());
+        sqlBuffer.append(" from ").append(TableUtil.getTableName(factory.getInstanceClass())).append(where);
         return (Hashtable) dbHelper.queryMap(sqlBuffer.toString(), where.getParams().toArray(), new ResultMapper() {
             Hashtable<Object, Object> hashMap = new Hashtable<>();
             Set<Field> fields = fieldHashMap.keySet();
-            Field indexFiled = getIndexField(factory.getInstanceClass());
+            Field indexFiled = TableUtil.getIndexField(factory.getInstanceClass());
 
             @Override
             public boolean map(ResultSet row) throws SQLException {
@@ -408,132 +415,4 @@ public class DatabaseHandler {
         }
     }
 
-    /**
-     * 返回一个类的表名
-     *
-     * @param clazz
-     * @return
-     */
-    private String getTableName(Class clazz) {
-        if (clazz.isAnnotationPresent(Database.class)) {
-            Database database = (Database) clazz.getAnnotation(Database.class);
-            return database.value();
-        }
-        throw new NoSuchElementException("该类无表名注解");
-    }
-
-    /**
-     * 返回所有注解可以查询的属性
-     *
-     * @param clazz
-     * @return
-     */
-    private HashMap<Field, DatabaseField> getAllSelectedField(Class clazz) {
-        return ReflectUtil.getFieldWithAnnotation(clazz, DatabaseField.class, new AnnotationCollector() {
-            @Override
-            public <T extends Annotation> boolean collect(T annotation) {
-                return ((DatabaseField) annotation).select();
-            }
-        });
-    }
-
-    /**
-     * 返回所有注解可以查询的属性
-     *
-     * @param clazz
-     * @return
-     */
-    private HashMap<Field, DatabaseField> getAllUpdateField(Class clazz) {
-        return ReflectUtil.getFieldWithAnnotation(clazz, DatabaseField.class, new AnnotationCollector() {
-            @Override
-            public <T extends Annotation> boolean collect(T annotation) {
-                return ((DatabaseField) annotation).update();
-            }
-        });
-    }
-
-    /**
-     * 返回所有注解可以查询的属性
-     *
-     * @param clazz
-     * @return
-     */
-    private HashMap<Field, DatabaseField> getAllInsertField(Class clazz) {
-        return ReflectUtil.getFieldWithAnnotation(clazz, DatabaseField.class, new AnnotationCollector() {
-            @Override
-            public <T extends Annotation> boolean collect(T annotation) {
-                return ((DatabaseField) annotation).insert();
-            }
-        });
-    }
-
-    /**
-     * 获取主键
-     *
-     * @param clazz
-     * @return
-     */
-    private Field getIndexField(Class clazz) {
-        Field index = ReflectUtil.getFieldWithAnnotation(clazz, DatabaseField.class, new AnnotationCollector() {
-            @Override
-            public <T extends Annotation> boolean collect(T annotation) {
-                return ((DatabaseField) annotation).insert();
-            }
-        }).keySet().iterator().next();
-        if (index != null) {
-            return index;
-        } else {
-            throw new NoSuchElementException("该类无主键注解");
-        }
-    }
-
-    /**
-     * 改变类的数据库表名
-     *
-     * @param clazz
-     * @param tableName
-     * @return 返回之前的旧表名
-     */
-    public static String changeTableName(Class clazz, String tableName) {
-        Annotation annotation = clazz.getAnnotation(Database.class);
-        if (annotation == null)
-            throw new IllegalArgumentException("该类无表名");
-        return (String) ReflectUtil.changeAnnotationValue(annotation, "value", tableName);
-    }
-
-    /**
-     * 改变属性的数据库表值
-     *
-     * @param field 必须是getDeclaredField(s)获取的字段，否则失败
-     * @param isIndex
-     * @param select
-     * @param update
-     * @param insert
-     */
-    public static void changeFieldProperty(Field field, boolean isIndex, boolean select, boolean update, boolean insert) {
-        DatabaseField old = field.getAnnotation(DatabaseField.class);
-        Map<String, Object> map = ReflectUtil.getAnnotationMemberValues(old);
-        map.put("isIndex", isIndex);
-        map.put("select", select);
-        map.put("update", update);
-        map.put("insert", insert);
-    }
-
-    /**
-     * 改变属性的数据库表值
-     *@param clazz
-     * @param fieldName
-     * @param isIndex
-     * @param select
-     * @param update
-     * @param insert
-     */
-    public static void changeFieldProperty(Class clazz,String fieldName, boolean isIndex, boolean select, boolean update, boolean insert) {
-        DatabaseField old = ReflectUtil.getDeclaredField(clazz,fieldName).getAnnotation(DatabaseField.class);
-        Map<String, Object> map = ReflectUtil.getAnnotationMemberValues(old);
-        map.put("isIndex", isIndex);
-        map.put("select", select);
-        map.put("update", update);
-        map.put("insert", insert);
-    }
 }

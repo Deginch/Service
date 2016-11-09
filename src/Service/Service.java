@@ -1,11 +1,9 @@
 package Service;
 
-import Database.DatabaseField;
+import Database.ReflectStuff.Column;
 import ServiceHandler.ServiceChanged;
 import ServiceHandler.ServiceState;
 import ErrorLog.ErrorLog;
-
-import java.lang.reflect.Field;
 
 /**
  * Created by degin on 2016/6/30.
@@ -15,12 +13,12 @@ import java.lang.reflect.Field;
  */
 public abstract class Service {
 
-    @DatabaseField(isIndex = true,update = true)
-    private int id;
-    @DatabaseField(update = true)
-    private int changed;
-    @DatabaseField(update = true)
-    private int state;
+    @Column(isIndex = true,update = true)
+    protected int id;
+    @Column(update = true)
+    protected int changed;
+    @Column(update = true)
+    protected int state;
 
     protected volatile boolean isRun = false;
 
