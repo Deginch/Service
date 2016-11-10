@@ -232,12 +232,7 @@ public class ServiceManager implements Commander {
                         Hashtable<Integer, Service> changedServiceHashtable = handler.queryHashTable(serviceFactory, Where.bigger("changed", 0).or(Where.isEqual("changed", -1).and(Where.isEqual("state", 1))));
 
                         for (Service service : changedServiceHashtable.values()) {
-                            ThreadPool.exec(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ServiceChanged.handlerChanged(handler, ServiceManager.this.serviceHashtable, service);
-                                }
-                            });
+                            ServiceChanged.handlerChanged(handler, ServiceManager.this.serviceHashtable, service);
                         }
                     } catch (Exception e) {
                         ErrorLog.writeLog(e);

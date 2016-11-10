@@ -31,7 +31,11 @@ public abstract class Service {
         state=ServiceState.Running.getState();
         changed=ServiceChanged.NoChange.getChanged();
         ErrorLog.writeLog(id+" service start");
-        start();
+        try {
+            start();
+        }catch (Exception e){
+            ErrorLog.writeLog(id+" service start error:",e);
+        }
     }
 
 
@@ -42,7 +46,11 @@ public abstract class Service {
         isRun=false;
         state=ServiceState.Sleep.getState();
         ErrorLog.writeLog(id+" service stop");
-        stop();
+        try {
+            stop();
+        }catch (Exception e){
+            ErrorLog.writeLog(id+" service stop error:",e);
+        }
     }
 
 

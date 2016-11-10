@@ -36,12 +36,13 @@ public enum ServiceChanged {
             switch (changed) {
                 case Added:
                     oldService = hashtable.put(service.getId(), service);
+                    service.setChanged(ServiceChanged.NoChange.getChanged());
+                    service.setState(ServiceState.Rebooting.getState());
+                    handler.update(service);
                     if (oldService != null) {
                         oldService.serviceStop();
-                        handler.update(oldService);
                     }
                     service.serviceStart();
-                    service.setChanged(ServiceChanged.NoChange.getChanged());
                     handler.update(service);
                     break;
                 case Modified:
